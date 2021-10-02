@@ -2,8 +2,9 @@
 // snake.c
 // A game of snake that plays in the linux terminal written in C using Ncurses
 //
-// Written by:	Tom Reid <tom.reid.2018@gmail.com>
-// Created on:	25/9/21
+// Written by:		Tom Reid <tom.reid.2018@gmail.com>
+// Created on:		25/9/21
+// Last Edited on:	2/10/21
 //
 // Copyright (c) 2021 Tom Reid.	Released under the MIT License.
 // See LICENSE.txt for Details.
