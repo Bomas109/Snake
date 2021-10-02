@@ -14,7 +14,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ncurses.h>
-
+#include <stdbool.h>
+#include <time.h>
 
 //=============================================================================
 // Defines
@@ -36,7 +37,9 @@ typedef struct location {
 
 void draw_fruit(LOC *a, int rows, int cols);
 
-void details(int rows, int cols);
+void details(int rows, int cols, int score);
+
+void draw_snake(LOC snake[255], int snake_length, int direction);
 
 //=============================================================================
 // Main Function
@@ -59,17 +62,62 @@ int main(void) {
 	int g_rows = t_rows - 2,
 		g_cols = t_cols;
 
+	// Set seed for rand().
+	srand(time(NULL));
+
+	// Stores the snakes direction.
+	// Up = 1 | Down = 2 | Left = 3 | Right = 4
+	int direction = 4;
+
+	// Stores snake length.
+	int snake_length = 5;
+
+	// Stores the Score.
+	int score = 0;
+
 	// Initialise fruit location
 	LOC fruit;
 
-	// Print Score
-	//mvprintw(t_rows, t_cols,"SCORE");
+	// Initialise snake array
+	LOC snake[255];
 
+	// Snake starting position (center).
+	snake[0].x = g_rows / 2;
+	snake[0].y = g_cols / 2;
+
+	bool game_over = false;
 	int ch;
-	while ((ch = getchar()) != 'q') {
+	while (!game_over) {
+		draw_snake(snake, snake_length, direction);
 		draw_fruit(&fruit, g_rows, g_cols);
-		details(t_rows, t_cols);
+		details(t_rows, t_cols, score);
 		refresh();
+
+		// Input
+		ch = getch();
+		switch(ch) {
+
+			case KEY_UP:
+				direction = 1;
+				break;
+
+			case KEY_DOWN:
+				direction = 2;
+				break;
+
+			case KEY_LEFT:
+				direction = 3;
+				break;
+
+			case KEY_RIGHT:
+				direction = 4;
+				break;
+
+			case 'q':
+				game_over = true;
+				break;
+
+		}
 	}
 
 	endwin();
@@ -93,12 +141,48 @@ void draw_fruit(LOC *a, int rows, int cols) {
 // Details (Score, Command help)
 //=============================================================================
 
-void details(int rows, int cols) {
+void details(int rows, int cols, int score) {
 	// Seperation Line
 	for (int i = 0; i <= cols; i++) {
 		mvaddch((rows - 2), i, BORDER);
 	}
 
 	// Display Score
-	mvprintw((rows - 1), 0,"SCORE:"); 
+	mvprintw((rows - 1), 0,"SCORE: %d", score);
+
+	// Display Credits
+	mvprintw((rows - 1), ((cols - 17) / 2), "Snake By Tom Reid");
+}
+
+//=============================================================================
+// Draw Snake
+//=============================================================================
+
+void draw_snake(LOC snake[255], int snake_length, int direction) {
+
+	// Movement
+	LOC snake_next;
+
+	if (direction == 1) { // Up = 1
+		snake_next.x = snake[0].x - 1;
+		snake_next.y = snake[0].y;
+	} else if (direction == 2) { // Down = 2
+		snake_next.x = snake[0].x + 1;
+		snake_next.y = snake[0].y;
+
+	} else if (direction == 3) { // Left = 3
+		snake_next.x = snake[0].x;
+		snake_next.y = snake[0].y - 1;
+
+	} else if (direction == 4) { // Right = 4
+		snake_next.x = snake[0].x;
+		snake_next.y = snake[0].y + 1;
+	}
+
+	snake[0] = snake_next;
+
+	// Display Snake.
+	for(int i = 0; i < snake_length; i++) {
+		mvaddch(snake[i].x, snake[i].y, SNAKE);
+	}
 }
